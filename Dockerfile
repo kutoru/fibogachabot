@@ -1,6 +1,6 @@
 FROM golang:1.20.0
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY . .
 RUN go mod tidy
