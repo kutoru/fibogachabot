@@ -4,5 +4,15 @@ services:
   app:
     build: .
     volumes:
-      - .:/app
+      - .:/app 
     command: go run main/main.go
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: amogus
+  phpMyAdmin:
+    image: phpmyadmin
+    environment:
+      PMA_ARBITRARY: 1
+    ports:
+      - "8080:80"
