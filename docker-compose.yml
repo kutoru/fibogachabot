@@ -3,16 +3,31 @@ version: '3.8'
 services:
   app:
     build: .
+    container_name: app
+    env_file:
+      - .env
     volumes:
       - .:/app 
+    depends_on: 
+      - "db"
     command: go run main/main.go
+  
   db:
-    image: mysql
+    image: mysql:8.0
+    container_name: db
     environment:
-      MYSQL_ROOT_PASSWORD: amogus
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: fibobase
+    volumes:
+      - my-db:/var/lib/mysql
+
   phpMyAdmin:
-    image: phpmyadmin
+    image: phpmyadmin:5.2
+    container_name: pma
     environment:
       PMA_ARBITRARY: 1
     ports:
       - "8080:80"
+
+volumes:
+  my-db:

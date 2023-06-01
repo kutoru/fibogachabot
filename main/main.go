@@ -3,41 +3,89 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type User struct {
-	Name string `json:"name"`
+	ID          int
+	Name        string
+	DateCreated string
 }
 
-func main() {
-	fmt.Println("amogus")
-	db, err := sql.Open("mysql", "root:amogus@tcp(localhost:3306)/Fibobase")
-
+// check error
+func ce(err error) {
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err)
 	}
-	defer db.Close()
+}
 
-	insert, err := db.Query("INSERT INTO Users VALUES ('AMONGUS')")
+func ConnectToDB() *sql.DB {
+	fmt.Println("Connecting to db")
 
-	results, err := db.Query("SELECT name FROM Users")
-	if err != nil {
-		panic(err.Error())
+	dbInfo := fmt.Sprintf("root:%s@tcp(db:3306)/fibobase", os.Getenv("DB_PASS"))
+	conn, err := sql.Open("mysql", dbInfo)
+	ce(err)
+
+	// go can start before the database sometimes, this avoids any issues related to that
+	for conn.Ping() != nil {
+		fmt.Println("Attempting connection to db")
+		time.Sleep(2 * time.Second)
 	}
 
-	defer insert.Close()
+	fmt.Println("Connected")
+	return conn
+}
+
+func dbtest() {
+	conn := ConnectToDB()
+
+	_, err := conn.Exec(`DROP TABLE IF EXISTS users;`)
+	ce(err)
+	fmt.Println("Dropped users table")
+
+	_, err = conn.Exec(`
+	create table users (
+		id int auto_increment,
+		name varchar(255) not null,
+		date_created datetime not null,
+		primary key (id)
+	);
+	`)
+	ce(err)
+	fmt.Println("Created users table")
+
+	_, err = conn.Query(`
+		INSERT INTO users(name, date_created) VALUES
+		('vostexx', now()),
+		('mgosu', now());
+	`)
+	ce(err)
+	fmt.Println("Inserted into users")
+
+	results, err := conn.Query("SELECT * FROM users;")
+	ce(err)
+	fmt.Println("Selected from users")
 
 	for results.Next() {
 		var user User
-		err = results.Scan(&user.Name)
-		if err != nil {
-			panic(err.Error())
-		}
+		err = results.Scan(
+			&user.ID,
+			&user.Name,
+			&user.DateCreated,
+		)
+		ce(err)
 
-		fmt.Println(user.Name)
+		fmt.Println(user)
 	}
+}
 
-	fmt.Println("Sus")
+func main() {
+	fmt.Println("Start")
+
+	dbtest()
+
+	fmt.Println("End")
 }
