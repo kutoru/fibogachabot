@@ -7,6 +7,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type User struct {
@@ -82,10 +83,52 @@ func dbtest() {
 	}
 }
 
+var numericKeyboard = tg.NewInlineKeyboardMarkup(
+	tg.NewInlineKeyboardRow(
+		tg.NewInlineKeyboardButtonData("1", "1"),
+		tg.NewInlineKeyboardButtonData("2", "2"),
+		tg.NewInlineKeyboardButtonData("3", "3"),
+	),
+	tg.NewInlineKeyboardRow(
+		tg.NewInlineKeyboardButtonData("4", "4"),
+		tg.NewInlineKeyboardButtonData("5", "5"),
+		tg.NewInlineKeyboardButtonData("6", "6"),
+	),
+)
+
+func botTest() {
+	bot, err := tg.NewBotAPI(os.Getenv("token"))
+	ce(err)
+
+	bot.Debug = true
+	updateConfig := tg.NewUpdate(0)
+	updateConfig.Timeout = 30
+	updates := bot.GetUpdatesChan(updateConfig)
+
+	for update := range updates {
+		if update.Message != nil {
+			msg := tg.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			msg.ReplyMarkup = numericKeyboard
+
+			_, err = bot.Send(msg)
+			ce(err)
+		} else if update.CallbackQuery != nil {
+			if update.CallbackQuery.Data == "1" {
+				callback := tg.NewDeleteMessage(
+					update.CallbackQuery.Message.Chat.ID,
+					update.CallbackQuery.Message.MessageID,
+				)
+				_, err := bot.Request(callback)
+				ce(err)
+			}
+		}
+	}
+}
+
 func main() {
 	fmt.Println("Start")
 
-	dbtest()
+	botTest()
 
 	fmt.Println("End")
 }
