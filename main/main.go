@@ -8,6 +8,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/kutoru/fibogachabot/pkg/global"
+	updatehandler "github.com/kutoru/fibogachabot/pkg/update_handler"
 )
 
 type User struct {
@@ -16,19 +18,12 @@ type User struct {
 	DateCreated string
 }
 
-// check error
-func ce(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func ConnectToDB() *sql.DB {
 	fmt.Println("Connecting to db")
 
 	dbInfo := fmt.Sprintf("root:%s@tcp(db:3306)/fibobase", os.Getenv("DB_PASS"))
 	conn, err := sql.Open("mysql", dbInfo)
-	ce(err)
+	global.CE(err)
 
 	// go can start before the database sometimes, this avoids any issues related to that
 	for conn.Ping() != nil {
@@ -44,7 +39,7 @@ func dbtest() {
 	conn := ConnectToDB()
 
 	_, err := conn.Exec(`DROP TABLE IF EXISTS users;`)
-	ce(err)
+	global.CE(err)
 	fmt.Println("Dropped users table")
 
 	_, err = conn.Exec(`
@@ -55,7 +50,7 @@ func dbtest() {
 		primary key (id)
 	);
 	`)
-	ce(err)
+	global.CE(err)
 	fmt.Println("Created users table")
 
 	_, err = conn.Query(`
@@ -63,11 +58,11 @@ func dbtest() {
 		('vostexx', now()),
 		('mgosu', now());
 	`)
-	ce(err)
+	global.CE(err)
 	fmt.Println("Inserted into users")
 
 	results, err := conn.Query("SELECT * FROM users;")
-	ce(err)
+	global.CE(err)
 	fmt.Println("Selected from users")
 
 	for results.Next() {
@@ -77,7 +72,7 @@ func dbtest() {
 			&user.Name,
 			&user.DateCreated,
 		)
-		ce(err)
+		global.CE(err)
 
 		fmt.Println(user)
 	}
@@ -97,30 +92,20 @@ var numericKeyboard = tg.NewInlineKeyboardMarkup(
 )
 
 func botTest() {
-	bot, err := tg.NewBotAPI(os.Getenv("token"))
-	ce(err)
-
-	bot.Debug = true
+	global.BotInit()
 	updateConfig := tg.NewUpdate(0)
 	updateConfig.Timeout = 30
-	updates := bot.GetUpdatesChan(updateConfig)
+	updates := global.Bot.GetUpdatesChan(updateConfig)
 
 	for update := range updates {
 		if update.Message != nil {
 			msg := tg.NewMessage(update.Message.Chat.ID, update.Message.Text)
 			msg.ReplyMarkup = numericKeyboard
 
-			_, err = bot.Send(msg)
-			ce(err)
+			_, err := global.Bot.Send(msg)
+			global.CE(err)
 		} else if update.CallbackQuery != nil {
-			if update.CallbackQuery.Data == "1" {
-				callback := tg.NewDeleteMessage(
-					update.CallbackQuery.Message.Chat.ID,
-					update.CallbackQuery.Message.MessageID,
-				)
-				_, err := bot.Request(callback)
-				ce(err)
-			}
+			updatehandler.KeyboardHandler(update)
 		}
 	}
 }
