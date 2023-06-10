@@ -78,19 +78,6 @@ func dbtest() {
 	}
 }
 
-var numericKeyboard = tg.NewInlineKeyboardMarkup(
-	tg.NewInlineKeyboardRow(
-		tg.NewInlineKeyboardButtonData("1", "1"),
-		tg.NewInlineKeyboardButtonData("2", "2"),
-		tg.NewInlineKeyboardButtonData("3", "3"),
-	),
-	tg.NewInlineKeyboardRow(
-		tg.NewInlineKeyboardButtonData("4", "4"),
-		tg.NewInlineKeyboardButtonData("5", "5"),
-		tg.NewInlineKeyboardButtonData("6", "6"),
-	),
-)
-
 func botTest() {
 	global.BotInit()
 	updateConfig := tg.NewUpdate(0)
@@ -99,9 +86,8 @@ func botTest() {
 
 	for update := range updates {
 		if update.Message != nil {
-			msg := tg.NewMessage(update.Message.Chat.ID, update.Message.Text)
-			msg.ReplyMarkup = numericKeyboard
-
+			msg := tg.NewMessage(update.Message.Chat.ID, "Dolbaeb?")
+			msg.ReplyMarkup = updatehandler.MainMenuKeyboard
 			_, err := global.Bot.Send(msg)
 			global.CE(err)
 		} else if update.CallbackQuery != nil {
