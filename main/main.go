@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/kutoru/fibogachabot/pkg/dbmanager"
 	"github.com/kutoru/fibogachabot/pkg/glb"
 	"github.com/kutoru/fibogachabot/pkg/tgmanager"
 )
@@ -12,6 +13,9 @@ func main() {
 
 	glb.LoadEnv()
 	glb.InitializeMenuList()
+
+	dbmanager.InitializeDB()
+	dbmanager.CreateDB()
 
 	tgmanager.InitializeBot()
 	tgmanager.StartPolling()

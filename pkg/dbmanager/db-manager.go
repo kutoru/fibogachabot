@@ -14,7 +14,7 @@ import (
 func InitializeDB() *sql.DB {
 	fmt.Println("Connecting to db")
 
-	dbInfo := fmt.Sprintf("root:%s@tcp(db:3306)/fibobase", os.Getenv("DB_PASS"))
+	dbInfo := fmt.Sprintf("root:%s@tcp(localhost:3306)/fibobase?multiStatements=true", os.Getenv("DB_PASS"))
 
 	var err error
 	glb.DB, err = sql.Open("mysql", dbInfo)
@@ -69,4 +69,12 @@ func dbtest() {
 
 		fmt.Println(user)
 	}
+}
+
+func CreateDB() {
+	dat, err := os.ReadFile("./db.sql")
+	glb.CE(err)
+	sql := string(dat)
+	_, err = glb.DB.Exec(sql)
+	glb.CE(err)
 }
