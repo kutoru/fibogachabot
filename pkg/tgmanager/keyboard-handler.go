@@ -1,11 +1,10 @@
-package updatehandler
+package tgmanager
 
 import (
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/kutoru/fibogachabot/pkg/global"
 )
 
-var MainMenuKeyboard = tg.NewInlineKeyboardMarkup(
+var mainMenuKeyboard = tg.NewInlineKeyboardMarkup(
 	tg.NewInlineKeyboardRow(
 		tg.NewInlineKeyboardButtonData("💫 Play", "1"),
 		tg.NewInlineKeyboardButtonData("✨ Dream", "2"),
@@ -18,20 +17,10 @@ var MainMenuKeyboard = tg.NewInlineKeyboardMarkup(
 	),
 )
 
-func DeletePreviousMessage(update tg.Update) {
-	callback := tg.NewDeleteMessage(
-		update.CallbackQuery.Message.Chat.ID,
-		update.CallbackQuery.Message.MessageID,
-	)
-	_, err := global.Bot.Request(callback)
-	global.CE(err)
-}
-
 func KeyboardHandler(update tg.Update) {
-	DeletePreviousMessage(update)
-	data := update.CallbackQuery.Data
 	msg := tg.NewMessage(update.CallbackQuery.From.ID, "")
-	switch data {
+
+	switch update.CallbackQuery.Data {
 	case "1":
 		msg.Text = "Clicked Play"
 	case "2":
@@ -45,7 +34,7 @@ func KeyboardHandler(update tg.Update) {
 	case "6":
 		msg.Text = "Clicked Settings"
 	}
-	msg.ReplyMarkup = MainMenuKeyboard
-	_, err := global.Bot.Send(msg)
-	global.CE(err)
+
+	msg.ReplyMarkup = mainMenuKeyboard
+	openMenu(msg, "main")
 }
