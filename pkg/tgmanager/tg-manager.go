@@ -23,9 +23,9 @@ func StartPolling() {
 
 	for update := range updates {
 		if update.Message != nil {
-			MessageHandler(update)
+			messageHandler(update)
 		} else if update.CallbackQuery != nil {
-			KeyboardHandler(update)
+			keyboardHandler(update)
 		}
 	}
 }

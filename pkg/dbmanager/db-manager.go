@@ -11,7 +11,7 @@ import (
 	"github.com/kutoru/fibogachabot/pkg/models"
 )
 
-func InitializeDB() *sql.DB {
+func ConnectToDB() {
 	fmt.Println("Connecting to db")
 
 	dbInfo := fmt.Sprintf("root:%s@tcp(localhost:3306)/fibobase?multiStatements=true", os.Getenv("DB_PASS"))
@@ -23,30 +23,14 @@ func InitializeDB() *sql.DB {
 	// go can start before the database sometimes, this avoids any issues related to that
 	for glb.DB.Ping() != nil {
 		fmt.Println("Attempting connection to db")
-		time.Sleep(2 * time.Second)
+		time.Sleep(3 * time.Second)
 	}
 
 	fmt.Println("Connected")
-	return glb.DB
 }
 
 func dbtest() {
-	_, err := glb.DB.Exec(`DROP TABLE IF EXISTS users;`)
-	glb.CE(err)
-	fmt.Println("Dropped users table")
-
-	_, err = glb.DB.Exec(`
-	create table users (
-		id int auto_increment,
-		name varchar(255) not null,
-		date_created datetime not null,
-		primary key (id)
-	);
-	`)
-	glb.CE(err)
-	fmt.Println("Created users table")
-
-	_, err = glb.DB.Query(`
+	_, err := glb.DB.Query(`
 		INSERT INTO users(name, date_created) VALUES
 		('vostexx', now()),
 		('mgosu', now());
@@ -71,10 +55,10 @@ func dbtest() {
 	}
 }
 
-func CreateDB() {
-	dat, err := os.ReadFile("./db.sql")
+// Executes create_db.sql on the connected database
+func InitializeDB() {
+	cont, err := os.ReadFile("./create_db.sql")
 	glb.CE(err)
-	sql := string(dat)
-	_, err = glb.DB.Exec(sql)
+	_, err = glb.DB.Exec(string(cont))
 	glb.CE(err)
 }

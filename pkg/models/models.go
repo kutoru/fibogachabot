@@ -20,7 +20,7 @@ type Menus struct {
 	menus []*Menu
 }
 
-// Check if there is a menu struct with the user's id
+// Checks if there is a menu struct with the user's id
 func (menus *Menus) UserHasMenu(userId int64) bool {
 	for _, menu := range menus.menus {
 		if menu.UserID == userId {
@@ -31,19 +31,19 @@ func (menus *Menus) UserHasMenu(userId int64) bool {
 	return false
 }
 
-// Append created menu struct
+// Appends the menu struct
 func (menus *Menus) Append(menu *Menu) {
 	menus.menus = append(menus.menus, menu)
 }
 
-// Print all menu structs
+// Prints all menu structs
 func (menus *Menus) PrintAll() {
 	for index, menu := range menus.menus {
 		fmt.Printf("%d) %v\n", index, menu)
 	}
 }
 
-// Remove by user's id
+// Removes menu by user's id, does nothing if the id does not exist
 func (menus *Menus) Remove(userId int64) {
 	for index, menu := range menus.menus {
 		if menu.UserID == userId {
@@ -55,7 +55,7 @@ func (menus *Menus) Remove(userId int64) {
 	}
 }
 
-// Returns user's menu struct if found
+// Returns user's menu struct if found, otherwise returns nil
 func (menus *Menus) GetMenu(userId int64) *Menu {
 	for _, menu := range menus.menus {
 		if menu.UserID == userId {

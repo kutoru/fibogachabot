@@ -17,7 +17,7 @@ var mainMenuKeyboard = tg.NewInlineKeyboardMarkup(
 	),
 )
 
-func KeyboardHandler(update tg.Update) {
+func keyboardHandler(update tg.Update) {
 	msg := tg.NewMessage(update.CallbackQuery.From.ID, "")
 
 	switch update.CallbackQuery.Data {

@@ -8,7 +8,7 @@ import (
 	"github.com/kutoru/fibogachabot/pkg/glb"
 )
 
-func MessageHandler(update tg.Update) {
+func messageHandler(update tg.Update) {
 	if strings.HasPrefix(update.Message.Text, "/") {
 		commandHandler(update)
 	} else {

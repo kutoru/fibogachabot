@@ -13,18 +13,20 @@ var Bot *tg.BotAPI
 var DB *sql.DB
 var OpenedMenus *models.Menus
 
-// check error
+// Checks error
 func CE(err error) {
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
+// Loads environment variables from .env
 func LoadEnv() {
 	err := godotenv.Load()
 	CE(err)
 }
 
+// Initializes OpenedMenus list
 func InitializeMenuList() {
 	OpenedMenus = &models.Menus{}
 }
