@@ -17,7 +17,7 @@ create table users (
     primary key (id)
 );
 
-# dc are dream counts that are responsible for guaranteed rarity drops
+# dc_5 and dc_4 are dream counts that are responsible for guaranteed 5* and 4* drops respectively
 # ge are responsible for guaranteed event drops
 create table counters(
     user_id int not null,
@@ -44,12 +44,12 @@ create table dream_history(
 );
 
 create table characters(
-    id int auto_increment,
+    id int not null,
     name varchar(255) NOT NULL,
     nickname varchar(255) NOT NULL,
     description varchar(255) NOT NULL,
     rarity int NOT NULL,
-    original_skin_path varchar(255) NOT NULL,
+    card_path varchar(255) NOT NULL,
     primary key (id)
 );
 

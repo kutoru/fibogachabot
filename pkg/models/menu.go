@@ -2,12 +2,6 @@ package models
 
 import "fmt"
 
-type User struct {
-	ID          int
-	Name        string
-	DateCreated string
-}
-
 type Menu struct {
 	UserID    int64
 	MenuType  string

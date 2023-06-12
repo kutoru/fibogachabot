@@ -13,7 +13,7 @@ func InitializeBot() {
 	glb.Bot, err = tg.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	glb.CE(err)
 	glb.Bot.Debug = true
-	fmt.Printf("Initialized bot %s\n", glb.Bot.Self.UserName)
+	fmt.Printf("Initialized @%s\n", glb.Bot.Self.UserName)
 }
 
 func StartPolling() {

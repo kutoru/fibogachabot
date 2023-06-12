@@ -2,6 +2,7 @@ package dbmanager
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -12,9 +13,7 @@ import (
 )
 
 func ConnectToDB() {
-	fmt.Println("Connecting to db")
-
-	dbInfo := fmt.Sprintf("root:%s@tcp(localhost:3306)/fibobase?multiStatements=true", os.Getenv("DB_PASS"))
+	dbInfo := fmt.Sprintf("root:%s@tcp(localhost:3306)/%s?multiStatements=true", os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
 
 	var err error
 	glb.DB, err = sql.Open("mysql", dbInfo)
@@ -26,39 +25,65 @@ func ConnectToDB() {
 		time.Sleep(3 * time.Second)
 	}
 
-	fmt.Println("Connected")
+	fmt.Println("Connected to db")
 }
 
-func dbtest() {
-	_, err := glb.DB.Query(`
-		INSERT INTO users(name, date_created) VALUES
-		('vostexx', now()),
-		('mgosu', now());
-	`)
+// Executes create_db.sql on the connected database and loads all the static data into it
+// TODO: make this function run only if the database is not initialized already
+func InitializeDB() {
+	script, err := os.ReadFile("./scripts/create_db.sql")
 	glb.CE(err)
-	fmt.Println("Inserted into users")
 
-	results, err := glb.DB.Query("SELECT * FROM users;")
+	_, err = glb.DB.Exec(string(script))
 	glb.CE(err)
-	fmt.Println("Selected from users")
 
-	for results.Next() {
-		var user models.User
-		err = results.Scan(
-			&user.ID,
-			&user.Name,
-			&user.DateCreated,
-		)
+	fmt.Println("Executed sql script")
+
+	loadCharactersIntoDB()
+	testReadAllCharacters()
+}
+
+func loadCharactersIntoDB() {
+	jsonDir := "./assets/char_jsons"
+	items, err := os.ReadDir(jsonDir)
+	glb.CE(err)
+
+	for _, item := range items {
+		json_data, err := os.ReadFile(jsonDir + "/" + item.Name())
 		glb.CE(err)
 
-		fmt.Println(user)
+		var char models.Charater
+		err = json.Unmarshal(json_data, &char)
+		glb.CE(err)
+
+		if len(char.Nickname) == 0 {
+			char.Nickname = "No nickname"
+		}
+
+		if len(char.Description) == 0 {
+			char.Description = "No description"
+		}
+
+		char.CardPath = "./assets/original/" + char.Name + ".png"
+
+		_, err = glb.DB.Query(`
+			insert into characters
+			values (?, ?, ?, ?, ?, ?);
+		`, char.ID, char.Name, char.Nickname, char.Description, char.Rarity, char.CardPath)
+		glb.CE(err)
 	}
 }
 
-// Executes create_db.sql on the connected database
-func InitializeDB() {
-	cont, err := os.ReadFile("./create_db.sql")
+func testReadAllCharacters() {
+	result, err := glb.DB.Query(`
+		select * from characters;
+	`)
 	glb.CE(err)
-	_, err = glb.DB.Exec(string(cont))
-	glb.CE(err)
+
+	for err == nil {
+		var newChar models.Charater
+		err = newChar.ScanFromResult(result)
+		glb.CE(err)
+		fmt.Printf("%+v\n\n", newChar)
+	}
 }
