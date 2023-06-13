@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-type Charater struct {
+type Character struct {
 	ID          int
 	Name        string
 	Nickname    string
@@ -18,7 +18,7 @@ type Charater struct {
 // This function does not call result.Next(), so you will have to do it beforehand.
 //
 // Returns potential result error.
-func (char *Charater) ScanFromResult(result *sql.Rows) error {
+func (char *Character) ScanFromResult(result *sql.Rows) error {
 	return result.Scan(
 		&char.ID,
 		&char.Name,
