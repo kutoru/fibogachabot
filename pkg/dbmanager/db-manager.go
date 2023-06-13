@@ -52,7 +52,7 @@ func loadCharactersIntoDB() {
 		json_data, err := os.ReadFile(jsonDir + "/" + item.Name())
 		glb.CE(err)
 
-		var char models.Charater
+		var char models.Character
 		err = json.Unmarshal(json_data, &char)
 		glb.CE(err)
 
@@ -81,7 +81,7 @@ func testReadAllCharacters() {
 	glb.CE(err)
 
 	for err == nil {
-		var newChar models.Charater
+		var newChar models.Character
 		err = newChar.ScanFromResult(result)
 		glb.CE(err)
 		fmt.Printf("%+v\n\n", newChar)

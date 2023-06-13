@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-type Charater struct {
+type Character struct {
 	ID          int
 	Name        string
 	Nickname    string
@@ -17,7 +17,7 @@ type Charater struct {
 // Scans into the struct from the DB result.
 //
 // Returns potential result error.
-func (char *Charater) ScanFromResult(result *sql.Rows) error {
+func (char *Character) ScanFromResult(result *sql.Rows) error {
 	if !result.Next() {
 		return errors.New("could not scan Character result because result.Next() is false")
 	}
