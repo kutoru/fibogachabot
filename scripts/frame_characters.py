@@ -1,50 +1,56 @@
+import os
+import json
+# pip install Pillow
 from PIL import Image
-from pathlib import Path
-from os import listdir
 
-CURRENT_DIR = str(Path(__file__).parent.resolve())
+jsons_path = "./assets/char_jsons"
+origs_path = "./assets/original"
 
-diam_path = f"{CURRENT_DIR}\\5 star"
-gold_path = f"{CURRENT_DIR}\\4 star"
-silv_path = f"{CURRENT_DIR}\\3 star"
+diam_frame = "./assets/misc/frame_diam.png"
+gold_frame = "./assets/misc/frame_gold.png"
+silv_frame = "./assets/misc/frame_silv.png"
 
-diam_frame = f"{CURRENT_DIR}\\Assets\\frame_diam.png"
-gold_frame = f"{CURRENT_DIR}\\Assets\\frame_gold.png"
-silv_frame = f"{CURRENT_DIR}\\Assets\\frame_silv.png"
+result_path = "./assets/framed"
 
 width = 384
 height = 640
 border = 7
 
-def combine_images(image1_path, image2_path, save_path):
-    image1 = Image.open(image1_path)
-    image1 = image1.resize((width-border*2, height-border*2))
-    image1 = image1.convert("RGBA")
+def frame_image(frame_path, orig_path):
+    global width, height, border
 
-    image2 = Image.open(image2_path)
-    image2 = image2.convert("RGBA")
+    # open frame
+    frame = Image.open(frame_path)
+    frame = frame.convert("RGBA")
 
-    new_image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    new_image.paste(image1, (border, border))
-    new_image = Image.alpha_composite(new_image, image2)
-    new_image.save(save_path, "png")
+    # open original card
+    orig = Image.open(orig_path)
+    orig = orig.resize((width-border*2, height-border*2))
+    orig = orig.convert("RGBA")
 
-def main():
-    for index, dir in enumerate((diam_path, gold_path, silv_path)):
-        for file_name in listdir(dir):
-            if "_" not in file_name:
-                if index == 0:
-                    frame_path = diam_frame
-                    new_image_path = diam_path
-                elif index == 1:
-                    frame_path = gold_frame
-                    new_image_path = gold_path
-                elif index == 2:
-                    frame_path = silv_frame
-                    new_image_path = silv_path
+    # combine em
+    framed_image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    framed_image.paste(orig, (border, border))
+    framed_image = Image.alpha_composite(framed_image, frame)
 
-                new_image_path += "\\" + file_name.split(".")[0] + "_framed.png"
+    return framed_image
 
-                combine_images(f"{dir}\\{file_name}", frame_path, new_image_path)
+if __name__=="__main__":
+    for filename in os.listdir(jsons_path):
+        # load character's json file and determine the paths
+        with open(f"{jsons_path}/{filename}") as fh:
+            json_file = json.load(fh)
 
-main()
+        if json_file["rarity"] == 5:
+            frame_path = diam_frame
+        if json_file["rarity"] == 4:
+            frame_path = gold_frame
+        if json_file["rarity"] == 3:
+            frame_path = silv_frame
+
+        orig_path = f"{origs_path}/{json_file['name']}.png"
+        save_path = f"{result_path}/{json_file['name']}_framed.png"
+
+        # frame the card and save it
+        framed_card = frame_image(frame_path, orig_path)
+        framed_card.save(save_path, "png")

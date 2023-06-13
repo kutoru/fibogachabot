@@ -1,103 +1,116 @@
+import os
+import json
+# pip install Pillow
 from PIL import Image, ImageFont, ImageDraw
-from pathlib import Path
-from os import listdir
-import sqlite3
 
-CURRENT_DIR = str(Path(__file__).parent.resolve())
+jsons_path = "./assets/char_jsons"
+framed_path = "./assets/framed"
 
-diam_path = f"{CURRENT_DIR}\\5 star"
-gold_path = f"{CURRENT_DIR}\\4 star"
-silv_path = f"{CURRENT_DIR}\\3 star"
+diam_bg = "./assets/misc/arch_entry_diam.png"
+gold_bg = "./assets/misc/arch_entry_gold.png"
+silv_bg = "./assets/misc/arch_entry_silv.png"
 
-diam_bg = f"{CURRENT_DIR}\\Assets\\arch_entry_diam.png"
-gold_bg = f"{CURRENT_DIR}\\Assets\\arch_entry_gold.png"
-silv_bg = f"{CURRENT_DIR}\\Assets\\arch_entry_silv.png"
+diam_stars = "./assets/misc/stars_diam.png"
+gold_stars = "./assets/misc/stars_gold.png"
+silv_stars = "./assets/misc/stars_silv.png"
 
-diam_stars = f"{CURRENT_DIR}\\Assets\\stars_diam.png"
-gold_stars = f"{CURRENT_DIR}\\Assets\\stars_gold.png"
-silv_stars = f"{CURRENT_DIR}\\Assets\\stars_silv.png"
+card_shadow = "./assets/misc/arch_card_shadow.png"
 
-card_shadow = f"{CURRENT_DIR}\\Assets\\arch_card_shadow.png"
+font_path = "./assets/misc/myriad_pro.otf"
+font_color = (255, 255, 255, 255)
 
-font_path = f"{CURRENT_DIR}\\Assets\\Myriad Pro.otf"
+result_path = "./assets/arch_entries"
 
-def combine_elements(bg_path, card_path, star_path, name_str, nickname_str, description_str):
-    # adding bg
+def make_archive_entry(bg_path, card_path, star_path, name_str, nickname_str, description_str):
+    global card_shadow
+
+    # open bg image and get its width and height
     arch_entry = Image.open(bg_path).convert("RGBA")
     width, height = arch_entry.size
 
-    # adding card
+    # add the card to the image
     card = Image.open(card_path)
     arch_entry.paste(card, (30, 30))
 
-    # adding card shadow
+    # add the shadow to the image
     shadow = Image.open(card_shadow)
-    extended_shadow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    extended_shadow.paste(shadow, (30, 30))
-    arch_entry = Image.alpha_composite(arch_entry, extended_shadow)
+    positioned_shadow = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    positioned_shadow.paste(shadow, (30, 30))
+    arch_entry = Image.alpha_composite(arch_entry, positioned_shadow)
 
-    # adding stars
+    # add the stars
     stars = Image.open(star_path)
-    extended_stars = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-    extended_stars.paste(stars, (121, 617))
-    arch_entry = Image.alpha_composite(arch_entry, extended_stars)
+    positioned_stars = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+    positioned_stars.paste(stars, (121, 617))
+    arch_entry = Image.alpha_composite(arch_entry, positioned_stars)
 
-    # adding name
+    # add the name
     add_text_to_image(arch_entry, name_str, (451+15-3, 27+15-2), 60, 392)  # actual font size = font size * 1.125
 
-    # adding nickname
+    # add the nickname
     add_text_to_image(arch_entry, nickname_str, (451+15, 27+15+54+15-1), 30, 392)
 
-    # adding description
+    # add the description
     add_text_to_image(arch_entry, description_str, (451+15, 187+15-1), 25, 392)
 
     return arch_entry
 
-def add_text_to_image(image_obj, text, box, font_size, wrap_length):
-    font = ImageFont.truetype(font_path, size=font_size)
+def add_text_to_image(image, text, box, font_size, wrap_length):
+    global font_path, font_color
+
+    # get the font
+    font = ImageFont.truetype(font_path, font_size)
+
+    # wrap the text
     text = get_wrapped_text(text, font, wrap_length)
-    image_draw = ImageDraw.Draw(image_obj)
-    image_draw.text(box, text, font=font, fill=(255, 255, 255, 255))
-    #return image_obj
+
+    # draw the text on the image
+    image_draw = ImageDraw.Draw(image)
+    image_draw.text(box, text, font=font, fill=font_color)
 
 def get_wrapped_text(text, font, max_line_length):  # max length in pixels
     lines = [""]
+
     for word in text.split():
         new_line = f"{lines[-1]} {word}".strip()
+
         if font.getlength(new_line) > max_line_length:
             lines.append(word)
         else:
             lines[-1] = new_line
+
     return "\n".join(lines)
 
-def main():
-    for index, dir in enumerate((diam_path, gold_path, silv_path)):
-        for file_name in listdir(dir):
-            if file_name.endswith("_framed.png"):
-                if index == 0:
-                    bg_path = diam_bg
-                    card_path = diam_path + "\\" + file_name
-                    star_path = diam_stars
-                    new_image_path = diam_path
-                elif index == 1:
-                    bg_path = gold_bg
-                    card_path = gold_path + "\\" + file_name
-                    star_path = gold_stars
-                    new_image_path = gold_path
-                elif index == 2:
-                    bg_path = silv_bg
-                    card_path = silv_path + "\\" + file_name
-                    star_path = silv_stars
-                    new_image_path = silv_path
+if __name__=="__main__":
+    for filename in os.listdir(jsons_path):
+        # load character's json file and determine the necessary info
+        with open(f"{jsons_path}/{filename}") as fh:
+            json_file = json.load(fh)
 
-                name_str = file_name.split("_")[0]
-                con = sqlite3.connect("database.db")
-                cur = con.cursor()
-                cur.execute("select nickname, description from characters where name = ?;", (name_str,))
-                nickname_str, description_str = cur.fetchone()
+        name = json_file["name"]
+        nickname = json_file["nickname"]
+        description = json_file["description"]
+        rarity = json_file["rarity"]
 
-                arch_entry = combine_elements(bg_path, card_path, star_path, name_str, nickname_str, description_str)
-                new_image_path += "\\" + file_name.split("_")[0] + "_arch_entry.png"
-                arch_entry.save(new_image_path, "png")
+        if len(nickname) == 0:
+            nickname = "No nickname"
 
-main()
+        if len(description) == 0:
+            description = "No description"
+
+        if rarity == 5:
+            bg_path = diam_bg
+            star_path = diam_stars
+        if rarity == 4:
+            bg_path = gold_bg
+            star_path = gold_stars
+        if rarity == 3:
+            bg_path = silv_bg
+            star_path = silv_stars
+
+        card_path = f"{framed_path}/{name}_framed.png"
+        save_path = f"{result_path}/{name}_arch_entry.png"
+
+        # make the image and save it
+        archive_entry = make_archive_entry(bg_path, card_path, star_path, name, nickname, description)
+        archive_entry.save(save_path, "png")
