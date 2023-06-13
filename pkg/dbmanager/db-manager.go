@@ -40,7 +40,6 @@ func InitializeDB() {
 	fmt.Println("Executed sql script")
 
 	loadCharactersIntoDB()
-	testReadAllCharacters()
 }
 
 func loadCharactersIntoDB() {
@@ -80,7 +79,7 @@ func testReadAllCharacters() {
 	`)
 	glb.CE(err)
 
-	for err == nil {
+	for result.Next() {
 		var newChar models.Charater
 		err = newChar.ScanFromResult(result)
 		glb.CE(err)

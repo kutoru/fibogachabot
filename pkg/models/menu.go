@@ -2,10 +2,22 @@ package models
 
 import "fmt"
 
+// a way to create enums in go
+type MenuType int
+
+const (
+	MainMenu MenuType = iota
+	PlayMenu
+	DreamMenu
+	ShopMenu
+	ProfileMenu
+	SettingsMenu
+	NotImplementedMenu
+)
+
 type Menu struct {
 	UserID    int64
-	MenuType  string
-	ChatID    int64
+	MenuType  MenuType
 	MessageID int
 	Args      []string
 }

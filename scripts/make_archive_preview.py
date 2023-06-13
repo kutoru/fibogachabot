@@ -3,9 +3,11 @@ import json
 # pip install Pillow
 from PIL import Image, ImageFont
 
-# paths
+# folder paths
 pfps_path = "./assets/faces"
 jsons_path = "./assets/char_jsons"
+
+# image paths
 bg_path = "./assets/misc/arch_prev_bg.png"
 
 diam_frame = "./assets/misc/pfp_frame_diam.png"
@@ -15,9 +17,8 @@ silv_frame = "./assets/misc/pfp_frame_silv.png"
 result_path = "./assets/archive_preview.png"
 
 # text
-text_color = (255, 255, 255, 255)
-
 font_file_path = "./assets/misc/wayland.otf"
+text_color = (255, 255, 255, 255)
 font_size = 22
 font_y_offset = 1
 

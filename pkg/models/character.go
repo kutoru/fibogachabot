@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 )
 
 type Charater struct {
@@ -16,12 +15,10 @@ type Charater struct {
 
 // Scans into the struct from the DB result.
 //
+// This function does not call result.Next(), so you will have to do it beforehand.
+//
 // Returns potential result error.
 func (char *Charater) ScanFromResult(result *sql.Rows) error {
-	if !result.Next() {
-		return errors.New("could not scan Character result because result.Next() is false")
-	}
-
 	return result.Scan(
 		&char.ID,
 		&char.Name,
