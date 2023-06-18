@@ -7,7 +7,7 @@ import (
 	"github.com/kutoru/fibogachabot/pkg/models"
 )
 
-// Users
+// User
 
 func LoadUser(userId int64) models.User {
 	result, err := glb.DB.Query(`
@@ -24,20 +24,46 @@ func LoadUser(userId int64) models.User {
 	return user
 }
 
-func GetTotalAcqCharacters(userId int64) int {
+// AcqCharacters
+
+func GetAllAcqCharacters(userId int64, loadCharInfo bool) []models.AcqCharacter {
 	result, err := glb.DB.Query(`
 		select * from acquired_chars where user_id = ?;
 	`, userId)
 	glb.CE(err)
 
-	total := 0
+	var allAcqChars []models.AcqCharacter
+
 	for result.Next() {
-		total += 1
+		var acqChar models.AcqCharacter
+		err := acqChar.ScanFromResult(result)
+		if err != nil {
+			continue
+		}
+
+		if loadCharInfo {
+			charResult, err := glb.DB.Query(`
+				select * from characters where id = ?;
+			`, acqChar.CharacterID)
+			glb.CE(err)
+
+			char := &models.Character{}
+			if charResult.Next() {
+				char.ScanFromResult(charResult)
+			}
+
+			acqChar.CharacterInfo = char
+		}
+
+		allAcqChars = append(allAcqChars, acqChar)
 	}
 
-	return total
+	return allAcqChars
 }
 
+// AcqAchievements
+
+// TODO: change this so it works similarly to GetAllAcqCharacters
 func GetTotalAcqAchievements(userId int64) int {
 	result, err := glb.DB.Query(`
 		select * from acquired_achievements where user_id = ?;
@@ -52,26 +78,65 @@ func GetTotalAcqAchievements(userId int64) int {
 	return total
 }
 
-func GetTotalAcqGifts(userId int64) int {
+// AcqGifts
+
+func GetAllAcqGifts(userId int64, loadGiftInfo bool) []models.AcqGift {
 	result, err := glb.DB.Query(`
 		select * from acquired_gifts where user_id = ?;
 	`, userId)
 	glb.CE(err)
 
-	total := 0
+	var allAcqGifts []models.AcqGift
+
 	for result.Next() {
 		var acqGift models.AcqGift
-		err = acqGift.ScanFromResult(result)
-
-		if err == nil {
-			total += acqGift.Amount
+		err := acqGift.ScanFromResult(result)
+		if err != nil {
+			glb.CE(err)
+			continue
 		}
+
+		if loadGiftInfo {
+			giftResult, err := glb.DB.Query(`
+				select * from gifts where id = ?;
+			`, acqGift.GiftID)
+			glb.CE(err)
+
+			gift := &models.Gift{}
+			if giftResult.Next() {
+				gift.ScanFromResult(giftResult)
+			}
+
+			acqGift.GiftInfo = gift
+		}
+
+		allAcqGifts = append(allAcqGifts, acqGift)
 	}
 
-	return total
+	return allAcqGifts
 }
 
-func TestReadAllUsers() {
+// Character
+
+func LoadCharacter() models.Character {
+	return models.Character{}
+}
+
+func TestPrintAllCharacters() {
+	result, err := glb.DB.Query(`
+		select * from characters;
+	`)
+	glb.CE(err)
+
+	for result.Next() {
+		var char models.Character
+		err = char.ScanFromResult(result)
+		glb.CE(err)
+		fmt.Printf("%+v\n\n", char)
+	}
+}
+
+func TestPrintAllUsers() {
 	result, err := glb.DB.Query(`
 		select * from users;
 	`)
@@ -87,25 +152,5 @@ func TestReadAllUsers() {
 			fmt.Println(code)
 		}
 		fmt.Println()
-	}
-}
-
-// Characters
-
-func LoadCharacter() models.Character {
-	return models.Character{}
-}
-
-func TestReadAllCharacters() {
-	result, err := glb.DB.Query(`
-		select * from characters;
-	`)
-	glb.CE(err)
-
-	for result.Next() {
-		var char models.Character
-		err = char.ScanFromResult(result)
-		glb.CE(err)
-		fmt.Printf("%+v\n\n", char)
 	}
 }

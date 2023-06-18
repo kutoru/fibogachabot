@@ -15,6 +15,8 @@ func main() {
 	glb.InitializeMenuList()
 
 	dbmanager.ConnectToDB()
+	// dbmanager.ResetDB()
+	// dbmanager.InitializeDB()
 
 	tgmanager.InitializeBot()
 	tgmanager.StartPolling()

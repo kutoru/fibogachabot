@@ -48,6 +48,9 @@ func InitializeDB() {
 	glb.CE(err)
 
 	fmt.Println("Initialized the DB")
+
+	LoadCharactersIntoDB()
+	LoadGiftsIntoDB()
 }
 
 func LoadCharactersIntoDB() {
@@ -71,12 +74,28 @@ func LoadCharactersIntoDB() {
 			char.Description = "No description"
 		}
 
-		char.CardPath = "./assets/original/" + char.Name + ".png"
-
 		_, err = glb.DB.Query(`
 			insert into characters
-			values (?, ?, ?, ?, ?, ?);
-		`, char.ID, char.Name, char.Nickname, char.Description, char.Rarity, char.CardPath)
+			values (?, ?, ?, ?, ?);
+		`, char.ID, char.Name, char.Nickname, char.Description, char.Rarity)
+		glb.CE(err)
+	}
+}
+
+func LoadGiftsIntoDB() {
+	var gifts []models.Gift
+
+	json_data, err := os.ReadFile("./assets/gifts.json")
+	glb.CE(err)
+
+	err = json.Unmarshal(json_data, &gifts)
+	glb.CE(err)
+
+	for _, gift := range gifts {
+		_, err = glb.DB.Query(`
+			insert into gifts
+			values (?, ?, ?, ?);
+		`, gift.ID, gift.Name, gift.Type, gift.Rarity)
 		glb.CE(err)
 	}
 }

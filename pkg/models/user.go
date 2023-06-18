@@ -6,17 +6,18 @@ import (
 )
 
 type User struct {
-	ID             int64
-	Name           string
-	DateCreated    string
-	Illusions      int
-	TotalIllusions int
-	XCards         int
-	TotalXCards    int
-	GiftsBought    int
-	GiftsGifted    int
-	Notifications  bool
-	RedeemedCodes  []string
+	ID               int64
+	Name             string
+	DateCreated      string
+	Illusions        int
+	TotalIllusions   int
+	XCards           int
+	TotalXCards      int
+	GiftsBought      int
+	GiftsGifted      int
+	DailiesCompleted int
+	Notifications    bool
+	RedeemedCodes    []string
 }
 
 func (user *User) ScanFromResult(result *sql.Rows) error {
@@ -32,6 +33,7 @@ func (user *User) ScanFromResult(result *sql.Rows) error {
 		&user.TotalXCards,
 		&user.GiftsBought,
 		&user.GiftsGifted,
+		&user.DailiesCompleted,
 		&user.Notifications,
 		&redeemedCodesBytes,
 	)

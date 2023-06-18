@@ -2,13 +2,14 @@ create table users (
     id bigint not null,
     name varchar(255) not null,
     date_created datetime not null,
-    illusions INT default 0,
-    total_illusions int default 0,
-    xcards INT default 0,
-    total_xcards int default 0,
-    gifts_bought int default 0,
-    gifts_gifted int default 0,
-    notifications bool default 1,
+    illusions INT not null default 0,
+    total_illusions int not null default 0,
+    xcards INT not null default 0,
+    total_xcards int not null default 0,
+    gifts_bought int not null default 0,
+    gifts_gifted int not null default 0,
+    dailies_completed int not null default 0,
+    notifications bool not null default 1,
     redeemed_codes json not null,
     primary key (id)
 );
@@ -45,7 +46,6 @@ create table characters(
     nickname varchar(255) NOT NULL,
     description varchar(255) NOT NULL,
     rarity int NOT NULL,
-    card_path varchar(255) NOT NULL,
     primary key (id)
 );
 
@@ -57,6 +57,7 @@ create table acquired_chars(
     enigma INT not null default 0,
     completed_quests json not null,
     received_gifts json not null,
+    date_acquired datetime not null,
     foreign key (user_id) references users(id),
     foreign key (char_id) references characters(id),
     PRIMARY KEY (user_id, char_id)
@@ -65,7 +66,7 @@ create table acquired_chars(
 create table gifts(
     id int not null,
     name varchar(255) not null,
-    type enum('food', 'tech', 'music', 'literature', 'art', 'toys') not null,
+    type enum('Food', 'Tech', 'Music', 'Literature', 'Art', 'Toys') not null,
     rarity int not null,
     primary key (id)
 );

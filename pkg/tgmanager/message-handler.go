@@ -29,7 +29,7 @@ func commandHandler(update tg.Update) {
 	if command == "menu" {
 		msg := tg.NewMessage(userId, "Dolbaeb?")
 		msg.ReplyMarkup = mainMenuKeyboard
-		openMenu(msg, models.MainMenu)
+		openMenu(msg, models.MainMenu, nil)
 
 	} else if command == "start" {
 		msg := tg.NewMessage(userId, "Start not implemented")

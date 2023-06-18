@@ -14,7 +14,8 @@ var notImplementedKeyboard = tg.NewInlineKeyboardMarkup(
 var notImplementedText = "The menu is not implemented"
 
 func keyboardHandler(update tg.Update) {
-	msg := tg.NewMessage(update.CallbackQuery.From.ID, "")
+	userId := update.CallbackQuery.From.ID
+	msg := tg.NewMessage(userId, "")
 
 	switch update.CallbackQuery.Data {
 
@@ -22,31 +23,11 @@ func keyboardHandler(update tg.Update) {
 	case "main_menu":
 		msg.Text = mainMenuText
 		msg.ReplyMarkup = mainMenuKeyboard
-		openMenu(msg, models.MainMenu)
-	case "1":
-		msg.Text = "Clicked Play"
-		msg.ReplyMarkup = mainMenuKeyboard
-		openMenu(msg, models.MainMenu)
-	case "2":
-		msg.Text = "Clicked Dream"
-		msg.ReplyMarkup = mainMenuKeyboard
-		openMenu(msg, models.MainMenu)
-	case "3":
-		msg.Text = "Clicked Shop"
-		msg.ReplyMarkup = mainMenuKeyboard
-		openMenu(msg, models.MainMenu)
+		openMenu(msg, models.MainMenu, nil)
 	case "profile":
-		msg.Text = profileText
+		msg.Text = getProfileText(userId)
 		msg.ReplyMarkup = profileKeyboard
-		openMenu(msg, models.ProfileMenu)
-	case "5":
-		msg.Text = "Clicked Archive"
-		msg.ReplyMarkup = mainMenuKeyboard
-		openMenu(msg, models.MainMenu)
-	case "6":
-		msg.Text = "Clicked Settings"
-		msg.ReplyMarkup = mainMenuKeyboard
-		openMenu(msg, models.MainMenu)
+		openMenu(msg, models.ProfileMenu, nil)
 
 		// play cases
 
@@ -54,7 +35,19 @@ func keyboardHandler(update tg.Update) {
 
 		// shop cases
 
-		// profile cases
+	// profile cases
+	case "profile_characters":
+		openListMenu(msg, models.ProfileCharactersMenu, true, false)
+	case "profile_characters|0":
+		openListMenu(msg, models.ProfileCharactersMenu, false, false)
+	case "profile_characters|1":
+		openListMenu(msg, models.ProfileCharactersMenu, false, true)
+	case "profile_inventory":
+		openListMenu(msg, models.ProfileInventoryMenu, true, false)
+	case "profile_inventory|0":
+		openListMenu(msg, models.ProfileInventoryMenu, false, false)
+	case "profile_inventory|1":
+		openListMenu(msg, models.ProfileInventoryMenu, false, true)
 
 		// archive cases
 
@@ -64,6 +57,6 @@ func keyboardHandler(update tg.Update) {
 	default:
 		msg.Text = notImplementedText
 		msg.ReplyMarkup = notImplementedKeyboard
-		openMenu(msg, models.NotImplementedMenu)
+		openMenu(msg, models.NotImplementedMenu, nil)
 	}
 }
