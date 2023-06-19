@@ -20,6 +20,7 @@ type Gift struct {
 	Name   string
 	Type   string
 	Rarity int
+	Price  int
 }
 
 type AcqGift struct {
@@ -35,6 +36,7 @@ func (gift *Gift) ScanFromResult(result *sql.Rows) error {
 		&gift.Name,
 		&gift.Type,
 		&gift.Rarity,
+		&gift.Price,
 	)
 }
 

@@ -94,8 +94,8 @@ func LoadGiftsIntoDB() {
 	for _, gift := range gifts {
 		_, err = glb.DB.Query(`
 			insert into gifts
-			values (?, ?, ?, ?);
-		`, gift.ID, gift.Name, gift.Type, gift.Rarity)
+			values (?, ?, ?, ?, ?);
+		`, gift.ID, gift.Name, gift.Type, gift.Rarity, gift.Price)
 		glb.CE(err)
 	}
 }
