@@ -21,7 +21,7 @@ type User struct {
 }
 
 func (user *User) ScanFromResult(result *sql.Rows) error {
-	var redeemedCodesBytes []uint8
+	var bytesRedeemedCodes []uint8
 
 	err := result.Scan(
 		&user.ID,
@@ -35,12 +35,12 @@ func (user *User) ScanFromResult(result *sql.Rows) error {
 		&user.GiftsGifted,
 		&user.DailiesCompleted,
 		&user.Notifications,
-		&redeemedCodesBytes,
+		&bytesRedeemedCodes,
 	)
 
 	if err != nil {
 		return err
 	}
 
-	return json.Unmarshal(redeemedCodesBytes, &user.RedeemedCodes)
+	return json.Unmarshal(bytesRedeemedCodes, &user.RedeemedCodes)
 }

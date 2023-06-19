@@ -17,6 +17,8 @@ CREATE TABLE users (
 CREATE TABLE dailies (
     user_id BIGINT NOT NULL,
     daily_index INT NOT NULL,
+    type VARCHAR(255) NOT NULL,
+    completed BOOL NOT NULL DEFAULT 0,
     CONSTRAINT max_daily_index CHECK (daily_index >= 0 AND daily_index <= 3),
     FOREIGN KEY (user_id) REFERENCES users(id),
     PRIMARY KEY (user_id, daily_index)

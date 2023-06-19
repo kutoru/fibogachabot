@@ -91,6 +91,10 @@ func (menus *Menus) GetMenu(userId int64) *Menu {
 }
 
 func (listMenu *ListMenu) GetMenuText(menuType MenuType) string {
+	if listMenu.CurrentPageIndex < 0 || listMenu.CurrentPageIndex > listMenu.MaxPageIndex {
+		return "How did you get here?"
+	}
+
 	var menuTitle string
 
 	switch menuType {
@@ -145,7 +149,8 @@ func (listMenu *ListMenu) GetKeyboard(menuType MenuType) tg.InlineKeyboardMarkup
 	nextButton := tg.NewInlineKeyboardButtonData("➡️ Next page", callbackData+"|1")
 	backRow := tg.NewInlineKeyboardRow(tg.NewInlineKeyboardButtonData("🔙 Go Back", backCallbackData))
 
-	if listMenu.CurrentPageIndex == 0 && listMenu.MaxPageIndex == 0 {
+	if listMenu.CurrentPageIndex < 0 || listMenu.CurrentPageIndex > listMenu.MaxPageIndex ||
+		listMenu.CurrentPageIndex == 0 && listMenu.MaxPageIndex == 0 {
 		return tg.NewInlineKeyboardMarkup(
 			backRow,
 		)

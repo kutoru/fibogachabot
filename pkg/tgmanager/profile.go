@@ -22,15 +22,14 @@ var profileKeyboard = tg.NewInlineKeyboardMarkup(
 	),
 )
 
-// TODO: implement questsCompleted
 func getProfileText(userId int64) string {
-	user := dbmanager.LoadUser(userId)
+	user := dbmanager.GetUser(userId)
 
 	name := user.Name
 	dateCreated := strings.Fields(user.DateCreated)[0]
 
 	totalCharacters := len(dbmanager.GetAllAcqCharacters(userId, false))
-	totalAchievements := dbmanager.GetTotalAcqAchievements(userId)
+	totalAchievements := len(dbmanager.GetAllAcqAchievements(userId, false))
 	dailiesCompleted := user.DailiesCompleted
 	questsCompleted := 0
 	giftsBought := user.GiftsBought
@@ -41,6 +40,13 @@ func getProfileText(userId int64) string {
 	currentIllusions := user.Illusions
 	currentXCards := user.XCards
 	currentGifts := 0
+
+	for _, quest := range dbmanager.GetAllAcqQuests(userId, false) {
+		if quest.Completed {
+			questsCompleted++
+		}
+	}
+
 	for _, gift := range dbmanager.GetAllAcqGifts(userId, false) {
 		currentGifts += gift.Amount
 	}

@@ -13,7 +13,10 @@ import (
 )
 
 func ConnectToDB() {
-	dbInfo := fmt.Sprintf("root:%s@tcp(localhost:3306)/%s?multiStatements=true&loc=Europe%%2FLondon", os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
+	dbInfo := fmt.Sprintf(
+		"root:%s@tcp(localhost:3306)/%s?multiStatements=true&loc=Europe%%2FLondon",
+		os.Getenv("DB_PASS"), os.Getenv("DB_NAME"),
+	)
 
 	var err error
 	glb.DB, err = sql.Open("mysql", dbInfo)

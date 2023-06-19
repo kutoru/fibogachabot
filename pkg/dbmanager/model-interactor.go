@@ -9,7 +9,7 @@ import (
 
 // User
 
-func LoadUser(userId int64) models.User {
+func GetUser(userId int64) models.User {
 	result, err := glb.DB.Query(`
 		select * from users where id = ?;
 	`, userId)
@@ -22,6 +22,29 @@ func LoadUser(userId int64) models.User {
 	}
 
 	return user
+}
+
+// Dailies
+
+func GetAllDailies(userId int64) []models.Daily {
+	result, err := glb.DB.Query(`
+		select * from dailies where user_id = ?;
+	`, userId)
+	glb.CE(err)
+
+	var allDailies []models.Daily
+
+	for result.Next() {
+		var daily models.Daily
+		err := daily.ScanFromResult(result)
+		if err != nil {
+			continue
+		}
+
+		allDailies = append(allDailies, daily)
+	}
+
+	return allDailies
 }
 
 // AcqCharacters
@@ -63,19 +86,40 @@ func GetAllAcqCharacters(userId int64, loadCharInfo bool) []models.AcqCharacter 
 
 // AcqAchievements
 
-// TODO: change this so it works similarly to GetAllAcqCharacters
-func GetTotalAcqAchievements(userId int64) int {
+func GetAllAcqAchievements(userId int64, loadAchievementInfo bool) []models.AcqAchievement {
 	result, err := glb.DB.Query(`
 		select * from acquired_achievements where user_id = ?;
 	`, userId)
 	glb.CE(err)
 
-	total := 0
+	var allAcqAchievs []models.AcqAchievement
+
 	for result.Next() {
-		total += 1
+		var acqAchiev models.AcqAchievement
+		err := acqAchiev.ScanFromResult(result)
+		if err != nil {
+			glb.CE(err)
+			continue
+		}
+
+		if loadAchievementInfo {
+			giftResult, err := glb.DB.Query(`
+				select * from achievements where id = ?;
+			`, acqAchiev.AchievementID)
+			glb.CE(err)
+
+			achiev := &models.Achievement{}
+			if giftResult.Next() {
+				achiev.ScanFromResult(giftResult)
+			}
+
+			acqAchiev.AchievementInfo = achiev
+		}
+
+		allAcqAchievs = append(allAcqAchievs, acqAchiev)
 	}
 
-	return total
+	return allAcqAchievs
 }
 
 // AcqGifts
@@ -118,8 +162,45 @@ func GetAllAcqGifts(userId int64, loadGiftInfo bool) []models.AcqGift {
 
 // Character
 
-func LoadCharacter() models.Character {
+func GetCharacter() models.Character {
 	return models.Character{}
+}
+
+// AcqQuests
+func GetAllAcqQuests(userId int64, loadGiftInfo bool) []models.AcqQuest {
+	result, err := glb.DB.Query(`
+		select * from acquired_quests where user_id = ?;
+	`, userId)
+	glb.CE(err)
+
+	var allAcqQuests []models.AcqQuest
+
+	for result.Next() {
+		var acqQuest models.AcqQuest
+		err := acqQuest.ScanFromResult(result)
+		if err != nil {
+			glb.CE(err)
+			continue
+		}
+
+		if loadGiftInfo {
+			questResult, err := glb.DB.Query(`
+				select * from quests where id = ?;
+			`, acqQuest.QuestID)
+			glb.CE(err)
+
+			quest := &models.Quest{}
+			if questResult.Next() {
+				quest.ScanFromResult(questResult)
+			}
+
+			acqQuest.QuestInfo = quest
+		}
+
+		allAcqQuests = append(allAcqQuests, acqQuest)
+	}
+
+	return allAcqQuests
 }
 
 func TestPrintAllCharacters() {

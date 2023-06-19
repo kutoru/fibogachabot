@@ -56,7 +56,5 @@ func (acqChar *AcqCharacter) ScanFromResult(result *sql.Rows) error {
 		return err
 	}
 
-	err = json.Unmarshal(bytesReceivedGifts, &acqChar.ReceivedGifts)
-
-	return err
+	return json.Unmarshal(bytesReceivedGifts, &acqChar.ReceivedGifts)
 }
