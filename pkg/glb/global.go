@@ -12,6 +12,7 @@ import (
 var Bot *tg.BotAPI
 var DB *sql.DB
 var OpenedMenus *models.Menus
+var OpenedMessages []*models.OpenedMessage
 
 // Checks error
 func CE(err error) {

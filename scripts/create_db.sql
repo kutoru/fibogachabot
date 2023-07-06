@@ -7,7 +7,7 @@ drop table if exists counters;
 drop table if exists users;
 
 create table users (
-    id int not null,
+    id bigint not null,
     name varchar(255) not null,
     date_created datetime not null,
     illusions INT default 0,
@@ -20,7 +20,7 @@ create table users (
 # dc_5 and dc_4 are dream counts that are responsible for guaranteed 5* and 4* drops respectively
 # ge are responsible for guaranteed event drops
 create table counters(
-    user_id int not null,
+    user_id bigint not null,
     std_dc_5 INT not null default 0,
     std_dc_4 INT not null default 0,
     std_dc_total INT not null default 0,
@@ -36,7 +36,7 @@ create table counters(
 
 # S for std; E for event
 create table dream_history(
-    user_id int not null,
+    user_id bigint not null,
     banner_type enum('S', 'E') not null,
     history json not null,
     foreign key (user_id) references users(id),
@@ -54,7 +54,7 @@ create table characters(
 );
 
 create table acquired_chars(
-    user_id INT NOT NULL,
+    user_id bigint NOT NULL,
     char_id int NOT NULL,
     friendship_exp INT not null default 0,
     friendship_lvl INT not null default 1,
@@ -74,7 +74,7 @@ create table achievements(
 );
 
 create table acquired_achievements(
-    user_id int not null,
+    user_id bigint not null,
     achievement_id int not null,
     foreign key (user_id) references users(id),
     foreign key (achievement_id) references achievements(id),
