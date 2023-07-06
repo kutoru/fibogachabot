@@ -30,6 +30,7 @@ func StartPolling() {
 	}
 }
 
+// Deletes the bot's message. Also tries to remove the message from OpenedMenus if it was related.
 func deleteMessage(chatId int64, messageId int) {
 	callback := tg.NewDeleteMessage(chatId, messageId)
 	_, err := glb.Bot.Request(callback)

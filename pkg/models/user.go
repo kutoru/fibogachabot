@@ -1,11 +1,46 @@
 package models
 
+import (
+	"database/sql"
+	"encoding/json"
+)
+
 type User struct {
-	ID            int
-	Name          string
-	DateCreated   string
-	Illusions     int
-	XCards        int
-	Notifications bool
-	RedeemedCodes []string
+	ID               int64
+	Name             string
+	DateCreated      string
+	Illusions        int
+	TotalIllusions   int
+	XCards           int
+	TotalXCards      int
+	GiftsBought      int
+	GiftsGifted      int
+	DailiesCompleted int
+	Notifications    bool
+	RedeemedCodes    []string
+}
+
+func (user *User) ScanFromResult(result *sql.Rows) error {
+	var bytesRedeemedCodes []uint8
+
+	err := result.Scan(
+		&user.ID,
+		&user.Name,
+		&user.DateCreated,
+		&user.Illusions,
+		&user.TotalIllusions,
+		&user.XCards,
+		&user.TotalXCards,
+		&user.GiftsBought,
+		&user.GiftsGifted,
+		&user.DailiesCompleted,
+		&user.Notifications,
+		&bytesRedeemedCodes,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(bytesRedeemedCodes, &user.RedeemedCodes)
 }

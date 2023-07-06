@@ -1,2 +1,5 @@
+.vscode
 .env
+.notes
 assets
+scripts/test_db.sql
